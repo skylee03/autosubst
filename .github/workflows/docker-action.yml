@@ -1,4 +1,4 @@
-# This file was generated from `meta.yml`, please do not edit manually.
+# This file was generated from `meta.yml`, and then had to be edited manually.
 # Follow the instructions on https://github.com/coq-community/templates to regenerate.
 name: Docker CI
 
@@ -9,6 +9,7 @@ on:
   pull_request:
     branches:
       - '**'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -17,19 +18,13 @@ jobs:
     strategy:
       matrix:
         image:
-          - 'mathcomp/mathcomp-dev:coq-dev'
-          - 'mathcomp/mathcomp:2.2.0-coq-8.19'
-          - 'mathcomp/mathcomp:2.1.0-coq-8.18'
-          - 'mathcomp/mathcomp:2.0.0-coq-8.17'
-          - 'mathcomp/mathcomp:1.17.0-coq-8.17'
-          - 'mathcomp/mathcomp:1.16.0-coq-8.17'
-          - 'mathcomp/mathcomp:1.15.0-coq-8.16'
-          - 'mathcomp/mathcomp:1.14.0-coq-8.15'
-          - 'mathcomp/mathcomp:1.13.0-coq-8.15'
-          - 'mathcomp/mathcomp:1.12.0-coq-8.14'
+          - 'mathcomp/mathcomp-dev:rocq-prover-dev'
+          - 'mathcomp/mathcomp:2.6.0-rocq-prover-9.2'
+          - 'mathcomp/mathcomp:2.6.0-rocq-prover-9.1'
+          - 'mathcomp/mathcomp:2.6.0-rocq-prover-9.0'
       fail-fast: false
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: coq-community/docker-coq-action@v1
         with:
           opam_file: 'coq-autosubst-ci.opam'
