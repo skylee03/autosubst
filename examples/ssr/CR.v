@@ -1,10 +1,13 @@
 From mathcomp Require Import ssreflect ssrbool eqtype ssrnat seq.
-From Coq Require Import ssrfun.
+From Stdlib Require Import ssrfun.
 Require Import AutosubstSsr ARS.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
+
+(* Silence Rocq 9.2 deprecation warnings *)
+Local Set Warnings "-implicit-create-hint-db, -notation-for-abbreviation".
 
 (** **** Untyped Lambda Calculus *)
 
@@ -94,16 +97,16 @@ Lemma step_pstep s t : step s t -> pstep s t.
 Proof. elim; eauto using pstep. Qed.
 
 Lemma pstep_red s t : pstep s t -> red s t.
-Proof with eauto with red_congr.
-  elim=> {s t} //=... move=> s1 s2 t1 t2 _ A _ B.
-  apply: (star_trans (App (Lam s2) t2))... exact/star1/step_beta.
+Proof.
+  elim=> {s t} //=; auto with red_congr. move=> s1 s2 t1 t2 _ A _ B.
+  apply: (star_trans (App (Lam s2) t2)); auto with red_congr. exact/star1/step_beta.
 Qed.
 
 Lemma pstep_subst sigma s t :
   pstep s t -> pstep s.[sigma] t.[sigma].
-Proof with eauto using pstep.
-  move=> A. elim: A sigma => /=... move=> s1 s2 t1 t2 _ A _ B sigma.
-  eapply pstep_ebeta... by autosubst.
+Proof.
+  move=> A. elim: A sigma => /=; auto using pstep. move=> s1 s2 t1 t2 _ A _ B sigma.
+  eapply pstep_ebeta => //. by autosubst.
 Qed.
 
 Lemma psstep_up sigma tau :
@@ -114,10 +117,10 @@ Qed.
 
 Lemma pstep_compat sigma tau s t :
   psstep sigma tau -> pstep s t -> pstep s.[sigma] t.[tau].
-Proof with eauto using pstep, psstep_up.
-  move=> A B. elim: B sigma tau A; asimpl...
+Proof.
+  move=> A B. elim: B sigma tau A; asimpl; auto using pstep, psstep_up.
   move=> s1 s2 t1 t2 _ A _ B sigma tau C.
-  apply: (@pstep_ebeta _ (s2.[up tau]) _ (t2.[tau])); asimpl...
+  apply: (@pstep_ebeta _ (s2.[up tau]) _ (t2.[tau])); asimpl; auto using psstep_up.
 Qed.
 
 Lemma pstep_compat_beta s1 s2 t1 t2 :
@@ -127,11 +130,11 @@ Proof.
 Qed.
 
 Lemma rho_triangle : triangle pstep rho.
-Proof with eauto using pstep.
-  move=> s t. elim=> {s t} //=...
+Proof.
+  move=> s t. elim=> {s t} //=; auto using pstep.
   - move=> s1 s2 t1 t2 _ A _ B. exact: pstep_compat_beta.
-  - move=> s1 s2 t1 t2 A ih1 _ ih2. case: s1 A ih1 => //=...
-    move=> s A ih1. inv A. inv ih1...
+  - move=> s1 s2 t1 t2 A ih1 _ ih2. case: s1 A ih1 => //=; auto using pstep.
+    move=> s A ih1. inv A. inv ih1; auto using pstep.
 Qed.
 
 Theorem church_rosser :
